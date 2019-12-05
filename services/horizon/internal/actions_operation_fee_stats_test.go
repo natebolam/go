@@ -164,7 +164,6 @@ func TestOperationFeeTestsActions_Show(t *testing.T) {
 				ht.Assert.Equal(kase.lastbasefee, result.LastLedgerBaseFee, "base_fee")
 				ht.Assert.Equal(kase.ledgerCapacityUsage, result.LedgerCapacityUsage, "ledger_capacity_usage")
 
-				// AcceptedFee is an alias for MaxFee data
 				ht.Assert.Equal(int64(kase.maxFeeMin), result.MaxFee.Min, "min")
 				ht.Assert.Equal(int64(kase.maxFeeMode), result.MaxFee.Mode, "mode")
 				ht.Assert.Equal(int64(kase.maxFeeP10), result.MaxFee.P10, "p10")
@@ -223,7 +222,6 @@ func TestOperationFeeTestsActions_ShowMultiOp(t *testing.T) {
 		ht.Assert.Equal(int64(100), result.LastLedgerBaseFee, "base_fee")
 		ht.Assert.Equal(0.06, result.LedgerCapacityUsage, "ledger_capacity_usage")
 
-		// AcceptedFee is an alias for MaxFee data
 		ht.Assert.Equal(int64(200), result.MaxFee.Max, "max_fee_max")
 		ht.Assert.Equal(int64(100), result.MaxFee.Min, "max_fee_min")
 		ht.Assert.Equal(int64(200), result.MaxFee.Mode, "max_fee_mode")

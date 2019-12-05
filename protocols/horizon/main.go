@@ -645,9 +645,9 @@ type FeeDistribution struct {
 // To do: implement fee suggestions if agreement is reached in https://github.com/stellar/go/issues/926
 type FeeStats struct {
 	// Action needed in release: horizon-v0.25.0
-	// Update type for LastLedger to uint32 and LastLedgerBaseFee to int64
-	LastLedger        int `json:"last_ledger,string"`
-	LastLedgerBaseFee int `json:"last_ledger_base_fee,string"`
+	// Update type for LastLedger to uint32
+	LastLedger        int   `json:"last_ledger,string"`
+	LastLedgerBaseFee int64 `json:"last_ledger_base_fee,string"`
 
 	LedgerCapacityUsage float64 `json:"ledger_capacity_usage,string"`
 

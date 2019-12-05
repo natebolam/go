@@ -9,7 +9,7 @@ import (
 func TestOperationFeeTestsActions_Show(t *testing.T) {
 	testCases := []struct {
 		scenario            string
-		lastbasefee         int
+		lastbasefee         int64
 		max                 int
 		min                 int
 		mode                int
@@ -234,7 +234,7 @@ func TestOperationFeeTestsActions_ShowMultiOp(t *testing.T) {
 		var result hProtocol.FeeStats
 		err := json.Unmarshal(w.Body.Bytes(), &result)
 		ht.Require.NoError(err)
-		ht.Assert.Equal(100, result.LastLedgerBaseFee, "base_fee")
+		ht.Assert.Equal(int64(100), result.LastLedgerBaseFee, "base_fee")
 		ht.Assert.Equal(0.06, result.LedgerCapacityUsage, "ledger_capacity_usage")
 
 		ht.Assert.Equal(100, result.MinAcceptedFee, "min")
@@ -315,7 +315,7 @@ func TestOperationFeeTestsActions_NotInterpolating(t *testing.T) {
 		var result hProtocol.FeeStats
 		err := json.Unmarshal(w.Body.Bytes(), &result)
 		ht.Require.NoError(err)
-		ht.Assert.Equal(100, result.LastLedgerBaseFee, "base_fee")
+		ht.Assert.Equal(int64(100), result.LastLedgerBaseFee, "base_fee")
 		ht.Assert.Equal(0.09, result.LedgerCapacityUsage, "ledger_capacity_usage")
 		ht.Assert.Equal(200, result.MinAcceptedFee, "min")
 		ht.Assert.Equal(400, result.ModeAcceptedFee, "mode")

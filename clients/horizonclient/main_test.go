@@ -1169,7 +1169,6 @@ var feesResponse = `{
     "p95": "100",
     "p99": "100"
   }
-
 }`
 
 var offersResponse = `{

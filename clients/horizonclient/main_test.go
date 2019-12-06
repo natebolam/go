@@ -1194,7 +1194,7 @@ var offersResponse = `{
             "href": "https://horizon-testnet.stellar.org/accounts/GDOJCPYIB66RY4XNDLRRHQQXB27YLNNAGAYV5HMHEYNYY4KUNV5FDV2F"
           }
         },
-        "id": 432323,
+        "id": "432323",
         "paging_token": "432323",
         "seller": "GDOJCPYIB66RY4XNDLRRHQQXB27YLNNAGAYV5HMHEYNYY4KUNV5FDV2F",
         "selling": {
@@ -1301,7 +1301,7 @@ var multipleOpsResponse = `{
         "selling_asset_type": "credit_alphanum4",
         "selling_asset_code": "XRP",
         "selling_asset_issuer": "GBVOL67TMUQBGL4TZYNMY3ZQ5WGQYFPFD5VJRWXR72VA33VFNL225PL5",
-        "offer_id": 73938565
+        "offer_id": "73938565"
       },  
       {
         "_links": {

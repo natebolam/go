@@ -151,16 +151,14 @@ type CreatePassiveSellOffer struct {
 // is ManageSellOffer.
 type ManageSellOffer struct {
 	Offer
-	// Action needed in release: horizon-v0.25.0
-	OfferID int64 `json:"offer_id"`
+	OfferID int64 `json:"offer_id,string"`
 }
 
 // ManageBuyOffer is the json resource representing a single operation whose type
 // is ManageBuyOffer.
 type ManageBuyOffer struct {
 	Offer
-	// Action needed in release: horizon-v0.25.0
-	OfferID int64 `json:"offer_id"`
+	OfferID int64 `json:"offer_id,string"`
 }
 
 // SetOptions is the json resource representing a single operation whose type is

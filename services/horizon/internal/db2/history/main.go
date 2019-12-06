@@ -394,6 +394,12 @@ type Operation struct {
 	TransactionSuccessful *bool `db:"transaction_successful"`
 }
 
+// ManageOffer is a struct of data from `operations.DetailsString`
+// when the operation type is manage sell offer or manage buy offer
+type ManageOffer struct {
+	OfferID int64 `json:"offer_id"`
+}
+
 // Offer is row of data from the `offers` table from horizon DB
 type Offer struct {
 	SellerID string    `db:"seller_id"`

@@ -333,6 +333,26 @@ func TestOperationEffect_BumpSequence(t *testing.T) {
 		ht.Assert.Equal("300000000000", effect.NewSeq)
 	}
 }
+func TestOperationEffect_Trade(t *testing.T) {
+	ht := StartHTTPTest(t, "kahuna")
+	defer ht.Finish()
+
+	w := ht.Get("/operations/103079219201/effects")
+	if ht.Assert.Equal(200, w.Code) {
+		var result []effects.Trade
+		ht.UnmarshalPage(w.Body, &result)
+		ht.Assert.Equal(int64(3), result[0].OfferID)
+
+		data, err := json.Marshal(&result[0])
+		ht.Assert.NoError(err)
+		effect := struct {
+			OfferID string `json:"offer_id"`
+		}{}
+
+		json.Unmarshal(data, &effect)
+		ht.Assert.Equal("3", effect.OfferID)
+	}
+}
 
 func TestOperation_IncludeTransaction(t *testing.T) {
 	ht := StartHTTPTest(t, "kahuna")

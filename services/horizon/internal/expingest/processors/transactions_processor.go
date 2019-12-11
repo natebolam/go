@@ -39,7 +39,8 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 
 	// Process transaction meta
 	for {
-		transaction, err := r.Read()
+		var transaction io.LedgerTransaction
+		transaction, err = r.Read()
 		if err != nil {
 			if err == stdio.EOF {
 				break
@@ -48,7 +49,7 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 			}
 		}
 
-		if err := transactionBatch.Add(transaction, sequence); err != nil {
+		if err = transactionBatch.Add(transaction, sequence); err != nil {
 			return errors.Wrap(err, "Error batch inserting transaction rows")
 		}
 
@@ -60,14 +61,15 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 		}
 	}
 
-	if err := transactionBatch.Exec(); err != nil {
+	if err = transactionBatch.Exec(); err != nil {
 		return errors.Wrap(err, "Error flushing transaction batch")
 	}
 
 	// use an older lookup sequence because the experimental ingestion system and the
 	// legacy ingestion system might not be in sync
 	checkSequence := int32(sequence - 10)
-	valid, err := p.TransactionsQ.CheckExpTransactions(checkSequence)
+	var valid bool
+	valid, err = p.TransactionsQ.CheckExpTransactions(checkSequence)
 	if err != nil {
 		return errors.Wrap(
 			err,

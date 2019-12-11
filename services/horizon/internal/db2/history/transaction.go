@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -198,9 +199,72 @@ func (q *Q) NewTransactionBatchInsertBuilder(maxBatchSize int) TransactionBatchI
 	}
 }
 
+func buildTransactionsByIndex(transactions []Transaction) map[int32]Transaction {
+	transactionsByIndex := map[int32]Transaction{}
+	for _, transaction := range transactions {
+		transactionsByIndex[transaction.ApplicationOrder] = transaction
+	}
+	return transactionsByIndex
+}
+
+// CheckExpTransactions checks that the transactions in exp_history_transactions
+// for the given ledger matches the same transactions in history_transactions
+func (q *Q) CheckExpTransactions(seq int32) (bool, error) {
+	var transactions, expTransactions []Transaction
+
+	err := q.Select(
+		&transactions,
+		selectTransaction.
+			Where("ht.ledger_sequence = ?", seq).
+			OrderBy("ht.application_order asc"),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	err = q.Select(
+		&expTransactions,
+		selectExpTransaction.
+			Where("ht.ledger_sequence = ?", seq).
+			OrderBy("ht.application_order asc"),
+	)
+	if err != nil {
+		return false, err
+	}
+
+	transactionsByIndex := buildTransactionsByIndex(transactions)
+	expTransactionsByIndex := buildTransactionsByIndex(expTransactions)
+
+	for index := range expTransactionsByIndex {
+		transaction, ok := transactionsByIndex[index]
+		expTransaction := expTransactionsByIndex[index]
+		if !ok {
+			continue
+		}
+
+		// ignore created time and updated time
+		expTransaction.CreatedAt = transaction.CreatedAt
+		expTransaction.UpdatedAt = transaction.UpdatedAt
+
+		// compare ClosedAt separately because reflect.DeepEqual does not handle time.Time
+		expClosedAt := expTransaction.LedgerCloseTime
+		expTransaction.LedgerCloseTime = transaction.LedgerCloseTime
+
+		equal := expClosedAt.Equal(transaction.LedgerCloseTime) &&
+			reflect.DeepEqual(transaction, expTransaction)
+
+		if !equal {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 // QTransactions defines transaction related queries.
 type QTransactions interface {
 	NewTransactionBatchInsertBuilder(maxBatchSize int) TransactionBatchInsertBuilder
+	CheckExpTransactions(seq int32) (bool, error)
 }
 
 // Add adds a new transaction to the batch
@@ -332,7 +396,7 @@ func transactionToMap(transaction io.LedgerTransaction, sequence uint32) (map[st
 	}, nil
 }
 
-var selectTransaction = sq.Select(
+var selectTransactionFields = sq.Select(
 	"ht.id, " +
 		"ht.transaction_hash, " +
 		"ht.ledger_sequence, " +
@@ -356,6 +420,12 @@ var selectTransaction = sq.Select(
 		"ht.memo, " +
 		"lower(ht.time_bounds) AS valid_after, " +
 		"upper(ht.time_bounds) AS valid_before, " +
-		"hl.closed_at AS ledger_close_time").
+		"hl.closed_at AS ledger_close_time")
+
+var selectTransaction = selectTransactionFields.
 	From("history_transactions ht").
+	LeftJoin("history_ledgers hl ON ht.ledger_sequence = hl.sequence")
+
+var selectExpTransaction = selectTransactionFields.
+	From("exp_history_transactions ht").
 	LeftJoin("history_ledgers hl ON ht.ledger_sequence = hl.sequence")

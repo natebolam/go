@@ -18,6 +18,7 @@
 // migrations/24_accounts.sql (1.402kB)
 // migrations/25_expingest_rename_columns.sql (641B)
 // migrations/26_exp_history_ledgers.sql (209B)
+// migrations/27_exp_history_transactions.sql (224B)
 // migrations/2_index_participants_by_toid.sql (277B)
 // migrations/3_use_sequence_in_history_accounts.sql (447B)
 // migrations/4_add_protocol_version.sql (188B)
@@ -370,7 +371,7 @@ func migrations22_trust_linesSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/22_trust_lines.sql", size: 955, mode: os.FileMode(0644), modTime: time.Unix(1573824972, 0)}
+	info := bindataFileInfo{name: "migrations/22_trust_lines.sql", size: 955, mode: os.FileMode(0644), modTime: time.Unix(1574700941, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xe7, 0xd9, 0x90, 0x83, 0xc9, 0xb3, 0x1b, 0xc4, 0xe9, 0xc4, 0xbb, 0xcb, 0xb5, 0x92, 0x15, 0xaa, 0xef, 0x5d, 0x4e, 0xcf, 0x16, 0x6b, 0x49, 0xef, 0x85, 0x1a, 0xbf, 0xb6, 0x71, 0xb3, 0x92, 0x33}}
 	return a, nil
 }
@@ -410,7 +411,7 @@ func migrations24_accountsSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/24_accounts.sql", size: 1402, mode: os.FileMode(0644), modTime: time.Unix(1573824972, 0)}
+	info := bindataFileInfo{name: "migrations/24_accounts.sql", size: 1402, mode: os.FileMode(0644), modTime: time.Unix(1574700941, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xa5, 0xf8, 0xf7, 0xeb, 0xe2, 0x3d, 0xda, 0xe, 0xc2, 0x78, 0x88, 0x16, 0x22, 0xbf, 0x22, 0xa8, 0x5a, 0x17, 0x72, 0xd9, 0xab, 0x56, 0xa8, 0x55, 0x5a, 0x3f, 0x47, 0xf6, 0x18, 0xfa, 0x43, 0xa7}}
 	return a, nil
 }
@@ -430,7 +431,7 @@ func migrations25_expingest_rename_columnsSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/25_expingest_rename_columns.sql", size: 641, mode: os.FileMode(0644), modTime: time.Unix(1573824972, 0)}
+	info := bindataFileInfo{name: "migrations/25_expingest_rename_columns.sql", size: 641, mode: os.FileMode(0644), modTime: time.Unix(1574700941, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x80, 0x44, 0x81, 0x62, 0xeb, 0xcf, 0x82, 0xaa, 0x9, 0x14, 0x4c, 0xb6, 0xd2, 0x2c, 0x41, 0x2d, 0xf0, 0x34, 0x4a, 0x18, 0x5a, 0x95, 0x3e, 0x8d, 0x60, 0xbe, 0x5, 0x10, 0xf5, 0xc2, 0x9c, 0x3a}}
 	return a, nil
 }
@@ -450,8 +451,28 @@ func migrations26_exp_history_ledgersSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations/26_exp_history_ledgers.sql", size: 209, mode: os.FileMode(0644), modTime: time.Unix(1574361894, 0)}
+	info := bindataFileInfo{name: "migrations/26_exp_history_ledgers.sql", size: 209, mode: os.FileMode(0644), modTime: time.Unix(1575929243, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xb0, 0xf9, 0xc6, 0xfd, 0xcb, 0x11, 0xc3, 0xc0, 0xbf, 0xac, 0x33, 0x8a, 0xc5, 0x8d, 0x47, 0xfd, 0x59, 0xd1, 0x1d, 0x69, 0x17, 0xba, 0xc7, 0xbb, 0xe6, 0x40, 0x58, 0x32, 0x14, 0x97, 0x96, 0x76}}
+	return a, nil
+}
+
+var _migrations27_exp_history_transactionsSql = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x84\xce\xb1\x0a\xc2\x40\x0c\x80\xe1\x3d\x4f\x91\x51\x91\x3e\x41\xa7\x6a\x6f\x10\x0b\x4a\xa9\x73\x09\x77\x67\x0d\xd4\x5c\xb9\xa4\x58\xdf\x5e\x70\x12\x15\x5c\xff\x6f\xf9\x8b\x02\x37\x37\x1e\x32\x59\xc4\xf3\x04\xb0\x6b\x5d\xd5\x39\xec\xaa\x6d\xe3\x30\x2e\x53\x7f\x65\xb5\x94\x1f\xbd\x65\x12\x25\x6f\x9c\x44\x71\x05\x88\x88\xcd\xfe\xe0\xf0\x97\xbf\x94\xc5\x8f\x73\x60\x19\x30\xc4\x0b\xcd\xa3\x7d\x66\x9f\x44\x2d\x13\xcb\x97\xb0\x84\xb8\x44\x85\x75\x09\xf0\x3e\x58\xa7\xbb\x00\xd4\xed\xf1\xf4\x6f\xd0\x93\x7a\x0a\xb1\x84\x67\x00\x00\x00\xff\xff\x09\xf7\x0b\x7d\xe0\x00\x00\x00")
+
+func migrations27_exp_history_transactionsSqlBytes() ([]byte, error) {
+	return bindataRead(
+		_migrations27_exp_history_transactionsSql,
+		"migrations/27_exp_history_transactions.sql",
+	)
+}
+
+func migrations27_exp_history_transactionsSql() (*asset, error) {
+	bytes, err := migrations27_exp_history_transactionsSqlBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "migrations/27_exp_history_transactions.sql", size: 224, mode: os.FileMode(0644), modTime: time.Unix(1575990434, 0)}
+	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xae, 0x2d, 0xeb, 0xc8, 0x44, 0x1d, 0x20, 0x63, 0x42, 0x16, 0xf8, 0x8a, 0x1e, 0x7c, 0xc7, 0x5, 0xb5, 0x74, 0xce, 0xbe, 0xba, 0xaa, 0xb1, 0x26, 0x51, 0x2a, 0x5, 0x6a, 0x2f, 0x4e, 0x7c, 0x39}}
 	return a, nil
 }
 
@@ -762,6 +783,8 @@ var _bindata = map[string]func() (*asset, error){
 
 	"migrations/26_exp_history_ledgers.sql": migrations26_exp_history_ledgersSql,
 
+	"migrations/27_exp_history_transactions.sql": migrations27_exp_history_transactionsSql,
+
 	"migrations/2_index_participants_by_toid.sql": migrations2_index_participants_by_toidSql,
 
 	"migrations/3_use_sequence_in_history_accounts.sql": migrations3_use_sequence_in_history_accountsSql,
@@ -841,6 +864,7 @@ var _bintree = &bintree{nil, map[string]*bintree{
 		"24_accounts.sql":                              &bintree{migrations24_accountsSql, map[string]*bintree{}},
 		"25_expingest_rename_columns.sql":              &bintree{migrations25_expingest_rename_columnsSql, map[string]*bintree{}},
 		"26_exp_history_ledgers.sql":                   &bintree{migrations26_exp_history_ledgersSql, map[string]*bintree{}},
+		"27_exp_history_transactions.sql":              &bintree{migrations27_exp_history_transactionsSql, map[string]*bintree{}},
 		"2_index_participants_by_toid.sql":             &bintree{migrations2_index_participants_by_toidSql, map[string]*bintree{}},
 		"3_use_sequence_in_history_accounts.sql":       &bintree{migrations3_use_sequence_in_history_accountsSql, map[string]*bintree{}},
 		"4_add_protocol_version.sql":                   &bintree{migrations4_add_protocol_versionSql, map[string]*bintree{}},

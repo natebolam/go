@@ -2,6 +2,7 @@ package processors
 
 import (
 	"context"
+	"fmt"
 	stdio "io"
 
 	"github.com/stellar/go/exp/ingest/io"
@@ -26,6 +27,7 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 		}
 	}()
 	defer w.Close()
+	r.IgnoreUpgradeChanges()
 
 	// Exit early if not ingesting into a DB
 	if v := ctx.Value(IngestUpdateDatabase); v == nil {
@@ -33,6 +35,7 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 	}
 
 	transactionBatch := p.TransactionsQ.NewTransactionBatchInsertBuilder(maxBatchSize)
+	sequence := r.GetSequence()
 
 	// Process transaction meta
 	for {
@@ -45,7 +48,7 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 			}
 		}
 
-		if err := transactionBatch.Add(transaction, r.GetSequence()); err != nil {
+		if err := transactionBatch.Add(transaction, sequence); err != nil {
 			return errors.Wrap(err, "Error batch inserting transaction rows")
 		}
 
@@ -59,6 +62,28 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 
 	if err := transactionBatch.Exec(); err != nil {
 		return errors.Wrap(err, "Error flushing transaction batch")
+	}
+
+	// use an older lookup sequence because the experimental ingestion system and the
+	// legacy ingestion system might not be in sync
+	checkSequence := int32(sequence - 10)
+	valid, err := p.TransactionsQ.CheckExpTransactions(checkSequence)
+	if err != nil {
+		return errors.Wrap(
+			err,
+			fmt.Sprintf("Could not compare transactions for ledger %v", checkSequence),
+		)
+	}
+
+	if !valid {
+		log.WithField("sequence", checkSequence).
+			Error("rows in exp_history_transactions " +
+				"does not match transactions in history_transactions")
+		return errors.Errorf(
+			"rows for ledger %v in exp_history_transactions "+
+				"does not match transactions in history_transactions",
+			checkSequence,
+		)
 	}
 
 	return nil

@@ -186,6 +186,9 @@ func (q *Q) RemoveExpIngestHistory(newerThanSequence uint32) (ExpIngestRemovalSu
 	}
 
 	summary.LedgersRemoved, err = result.RowsAffected()
+	if err != nil {
+		return summary, err
+	}
 
 	result, err = q.Exec(
 		sq.Delete("exp_history_transactions").

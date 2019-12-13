@@ -223,7 +223,7 @@ func (s *RunIngestionTestSuite) TestTruncateTablesReturnsError() {
 	s.historyQ.On("GetExpIngestVersion").Return(CurrentVersion, nil).Once()
 	s.historyQ.On("UpdateLastLedgerExpIngest", uint32(0)).Return(nil).Once()
 	s.historyQ.On("UpdateExpStateInvalid", false).Return(nil).Once()
-	s.session.On("TruncateTables", history.ExperimentalIngestionTables).Return(
+	s.session.On("TruncateTables", stateIngestionTables).Return(
 		errors.New("truncate error"),
 	).Once()
 	s.historyQ.On("Rollback").Return(nil).Once()
@@ -236,7 +236,7 @@ func (s *RunIngestionTestSuite) TestRunReturnsError() {
 	s.historyQ.On("GetExpIngestVersion").Return(CurrentVersion, nil).Once()
 	s.historyQ.On("UpdateLastLedgerExpIngest", uint32(0)).Return(nil).Once()
 	s.historyQ.On("UpdateExpStateInvalid", false).Return(nil).Once()
-	s.session.On("TruncateTables", history.ExperimentalIngestionTables).Return(nil).Once()
+	s.session.On("TruncateTables", stateIngestionTables).Return(nil).Once()
 	s.ingestSession.On("Run").Return(errors.New("run error")).Once()
 	s.ingestSession.On("GetLatestSuccessfullyProcessedLedger").Return(uint32(3), true).Once()
 	s.historyQ.On("Rollback").Return(nil).Once()
@@ -250,7 +250,7 @@ func (s *RunIngestionTestSuite) TestOutdatedIngestVersion() {
 	s.historyQ.On("GetExpIngestVersion").Return(CurrentVersion-1, nil).Once()
 	s.historyQ.On("UpdateLastLedgerExpIngest", uint32(0)).Return(nil).Once()
 	s.historyQ.On("UpdateExpStateInvalid", false).Return(nil).Once()
-	s.session.On("TruncateTables", history.ExperimentalIngestionTables).Return(nil).Once()
+	s.session.On("TruncateTables", stateIngestionTables).Return(nil).Once()
 	s.ingestSession.On("Run").Return(nil).Once()
 	s.historyQ.On("Rollback").Return(nil).Once()
 	s.system.retry = expectError(s.Assert(), "")

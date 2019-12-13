@@ -265,4 +265,4 @@ var selectTransaction = selectTransactionFields.
 
 var selectExpTransaction = selectTransactionFields.
 	From("exp_history_transactions ht").
-	LeftJoin("history_ledgers hl ON ht.ledger_sequence = hl.sequence")
+	LeftJoin("exp_history_ledgers hl ON ht.ledger_sequence = hl.sequence")

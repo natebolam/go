@@ -258,6 +258,8 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.Equal(ExpIngestRemovalSummary{}, summary)
 	tt.Assert.NoError(err)
 
+	txInsertBuilder := q.NewTransactionBatchInsertBuilder(0)
+
 	ledger := Ledger{
 		Sequence:                   69859,
 		PreviousLedgerHash:         null.NewString("4b0b8bace3b2438b2404776ce57643966855487ba6384724a3c664c7aa4cd9e4", true),
@@ -296,6 +298,23 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 		_, err = q.Exec(insertSQL)
 		tt.Assert.NoError(err)
 
+		err = txInsertBuilder.Add(
+			buildLedgerTransaction(
+				tt,
+				testTransaction{
+					index:         1,
+					envelopeXDR:   "AAAAACiSTRmpH6bHC6Ekna5e82oiGY5vKDEEUgkq9CB//t+rAAAAyAEXUhsAADDRAAAAAAAAAAAAAAABAAAAAAAAAAsBF1IbAABX4QAAAAAAAAAA",
+					resultXDR:     "AAAAAAAAASwAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAFAAAAAAAAAAA=",
+					feeChangesXDR: "AAAAAA==",
+					metaXDR:       "AAAAAQAAAAAAAAAA",
+					hash:          "19aaa18db88605aedec04659fb45e06f240b022eb2d429e05133e4d53cd945ba",
+				},
+			),
+			uint32(ledger.Sequence),
+		)
+		tt.Assert.NoError(err)
+		tt.Assert.NoError(txInsertBuilder.Exec())
+
 		ledger.Sequence++
 	}
 
@@ -303,6 +322,11 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	err = q.Select(&ledgers, selectLedgerFields.From("exp_history_ledgers hl"))
 	tt.Assert.NoError(err)
 	tt.Assert.Len(ledgers, 5)
+
+	var transactions []Transaction
+	err = q.Select(&transactions, selectExpTransaction)
+	tt.Assert.NoError(err)
+	tt.Assert.Len(transactions, 5)
 
 	summary, err = q.RemoveExpIngestHistory(69863)
 	tt.Assert.Equal(ExpIngestRemovalSummary{}, summary)
@@ -312,15 +336,25 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.NoError(err)
 	tt.Assert.Len(ledgers, 5)
 
-	summary, err = q.RemoveExpIngestHistory(69861)
-	tt.Assert.Equal(ExpIngestRemovalSummary{2}, summary)
+	err = q.Select(&transactions, selectExpTransaction)
+	tt.Assert.NoError(err)
+	tt.Assert.Len(transactions, 5)
+
+	cutoffSequence := 69861
+	summary, err = q.RemoveExpIngestHistory(uint32(cutoffSequence))
+	tt.Assert.Equal(ExpIngestRemovalSummary{LedgersRemoved: 2, TransactionsRemoved: 2}, summary)
 	tt.Assert.NoError(err)
 
 	err = q.Select(&ledgers, selectLedgerFields.From("exp_history_ledgers hl"))
 	tt.Assert.NoError(err)
 	tt.Assert.Len(ledgers, 3)
 
-	for _, ledger := range ledgers {
-		tt.Assert.LessOrEqual(ledger.Sequence, int32(69861))
+	err = q.Select(&transactions, selectExpTransaction)
+	tt.Assert.NoError(err)
+	tt.Assert.Len(transactions, 3)
+
+	for i := range ledgers {
+		tt.Assert.LessOrEqual(ledgers[i].Sequence, int32(cutoffSequence))
+		tt.Assert.LessOrEqual(transactions[i].LedgerSequence, int32(cutoffSequence))
 	}
 }

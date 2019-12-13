@@ -240,8 +240,9 @@ func TestCheckExpTransactions(t *testing.T) {
 	}
 	*ledger.SuccessfulTransactionCount = 12
 	*ledger.FailedTransactionCount = 3
-	insertSQL := sq.Insert("history_ledgers").SetMap(ledgerToMap(ledger))
-	_, err = q.Exec(insertSQL)
+	_, err = q.Exec(sq.Insert("history_ledgers").SetMap(ledgerToMap(ledger)))
+	tt.Assert.NoError(err)
+	_, err = q.Exec(sq.Insert("exp_history_ledgers").SetMap(ledgerToMap(ledger)))
 	tt.Assert.NoError(err)
 
 	valid, err = q.CheckExpTransactions(sequence)
@@ -352,8 +353,7 @@ func TestInsertExpTransactionDoesNotAllowDuplicateIndex(t *testing.T) {
 	}
 	*ledger.SuccessfulTransactionCount = 12
 	*ledger.FailedTransactionCount = 3
-	insertSQL := sq.Insert("history_ledgers").SetMap(ledgerToMap(ledger))
-	_, err := q.Exec(insertSQL)
+	_, err := q.Exec(sq.Insert("exp_history_ledgers").SetMap(ledgerToMap(ledger)))
 	tt.Assert.NoError(err)
 
 	var transactions []Transaction
@@ -393,8 +393,9 @@ func TestInsertExpTransaction(t *testing.T) {
 	}
 	*ledger.SuccessfulTransactionCount = 12
 	*ledger.FailedTransactionCount = 3
-	insertSQL := sq.Insert("history_ledgers").SetMap(ledgerToMap(ledger))
-	_, err := q.Exec(insertSQL)
+	_, err := q.Exec(sq.Insert("history_ledgers").SetMap(ledgerToMap(ledger)))
+	tt.Assert.NoError(err)
+	_, err = q.Exec(sq.Insert("exp_history_ledgers").SetMap(ledgerToMap(ledger)))
 	tt.Assert.NoError(err)
 
 	insertBuilder := q.NewTransactionBatchInsertBuilder(0)

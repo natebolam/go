@@ -37,7 +37,6 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 	transactionBatch := p.TransactionsQ.NewTransactionBatchInsertBuilder(maxBatchSize)
 	sequence := r.GetSequence()
 
-	// Process transaction meta
 	for {
 		var transaction io.LedgerTransaction
 		transaction, err = r.Read()
@@ -78,9 +77,6 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 	}
 
 	if !valid {
-		log.WithField("sequence", checkSequence).
-			Error("rows in exp_history_transactions " +
-				"does not match transactions in history_transactions")
 		return errors.Errorf(
 			"rows for ledger %v in exp_history_transactions "+
 				"does not match transactions in history_transactions",

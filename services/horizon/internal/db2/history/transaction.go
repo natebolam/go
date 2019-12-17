@@ -198,6 +198,14 @@ func (q *Q) CheckExpTransactions(seq int32) (bool, error) {
 		return false, err
 	}
 
+	// We only proceed with the comparison if we have transaction data in both the
+	// legacy ingestion system and the experimental ingestion system.
+	// If there are no transactions in either the legacy ingestion system or the
+	// experimental ingestion system we skip the check.
+	if len(transactions) == 0 || len(expTransactions) == 0 {
+		return true, nil
+	}
+
 	transactionsByIndex := buildTransactionsByIndex(transactions)
 	expTransactionsByIndex := buildTransactionsByIndex(expTransactions)
 
@@ -205,7 +213,7 @@ func (q *Q) CheckExpTransactions(seq int32) (bool, error) {
 		transaction, ok := transactionsByIndex[index]
 		expTransaction := expTransactionsByIndex[index]
 		if !ok {
-			continue
+			return false, nil
 		}
 
 		// ignore created time and updated time

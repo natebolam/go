@@ -45,19 +45,6 @@ const (
 	CurrentVersion = 10
 )
 
-// stateIngestionTables is a list of tables containing ingestion state data.
-// These tables can be populated using history archive snapshots.
-// Any tables which cannot be populated using history archive snapshots
-// should not be included in this list.
-var stateIngestionTables = []string{
-	"accounts",
-	"accounts_data",
-	"accounts_signers",
-	"exp_asset_stats",
-	"offers",
-	"trust_lines",
-}
-
 var log = logpkg.DefaultLogger.WithField("service", "expingest")
 
 type Config struct {
@@ -87,11 +74,11 @@ type dbQ interface {
 	UpdateExpStateInvalid(bool) error
 	GetExpStateInvalid() (bool, error)
 	GetAllOffers() ([]history.Offer, error)
+	TruncateExpingestStateTables() error
 	RemoveExpIngestHistory(uint32) (history.ExpIngestRemovalSummary, error)
 }
 
 type dbSession interface {
-	TruncateTables([]string) error
 	Clone() *db.Session
 }
 
@@ -294,7 +281,7 @@ func (s *System) Run() {
 				return errors.Wrap(err, "Error updating state invalid value")
 			}
 
-			err = s.historySession.TruncateTables(stateIngestionTables)
+			err = s.historyQ.TruncateExpingestStateTables()
 			if err != nil {
 				return errors.Wrap(err, "Error clearing ingest tables")
 			}

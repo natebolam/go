@@ -217,7 +217,6 @@ func TestCheckExpTransactions(t *testing.T) {
 	insertTransaction(tt, q, "exp_history_transactions", transaction, sequence)
 	insertTransaction(tt, q, "exp_history_transactions", otherTransaction, sequence)
 	insertTransaction(tt, q, "history_transactions", transaction, sequence)
-	insertTransaction(tt, q, "history_transactions", otherTransaction, sequence)
 
 	ledger := Ledger{
 		Sequence:                   sequence,
@@ -244,6 +243,12 @@ func TestCheckExpTransactions(t *testing.T) {
 	tt.Assert.NoError(err)
 	_, err = q.Exec(sq.Insert("exp_history_ledgers").SetMap(ledgerToMap(ledger)))
 	tt.Assert.NoError(err)
+
+	valid, err = q.CheckExpTransactions(sequence)
+	tt.Assert.False(valid)
+	tt.Assert.NoError(err)
+
+	insertTransaction(tt, q, "history_transactions", otherTransaction, sequence)
 
 	valid, err = q.CheckExpTransactions(sequence)
 	tt.Assert.True(valid)

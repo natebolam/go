@@ -165,43 +165,6 @@ func (q *Q) InsertExpLedger(
 	return result.RowsAffected()
 }
 
-// ExpIngestRemovalSummary describes how many rows in the experimental ingestion
-// history tables have been deleted by RemoveExpIngestHistory()
-type ExpIngestRemovalSummary struct {
-	LedgersRemoved      int64
-	TransactionsRemoved int64
-}
-
-// RemoveExpIngestHistory removes all rows in the experimental ingestion
-// history tables which have a ledger sequence higher than `newerThanSequence`
-func (q *Q) RemoveExpIngestHistory(newerThanSequence uint32) (ExpIngestRemovalSummary, error) {
-	summary := ExpIngestRemovalSummary{}
-
-	result, err := q.Exec(
-		sq.Delete("exp_history_ledgers").
-			Where("sequence > ?", newerThanSequence),
-	)
-	if err != nil {
-		return summary, err
-	}
-
-	summary.LedgersRemoved, err = result.RowsAffected()
-	if err != nil {
-		return summary, err
-	}
-
-	result, err = q.Exec(
-		sq.Delete("exp_history_transactions").
-			Where("ledger_sequence > ?", newerThanSequence),
-	)
-	if err != nil {
-		return summary, err
-	}
-
-	summary.TransactionsRemoved, err = result.RowsAffected()
-	return summary, err
-}
-
 func ledgerHeaderToMap(
 	ledger xdr.LedgerHeaderHistoryEntry,
 	successTxsCount int,

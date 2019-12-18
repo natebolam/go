@@ -142,12 +142,14 @@ func (p *ParticipantsProcessor) ProcessLedger(ctx context.Context, store *pipeli
 		}
 	}
 
-	if err = p.loadAccountIDs(participantSet); err != nil {
-		return err
-	}
+	if len(participantSet) > 0 {
+		if err = p.loadAccountIDs(participantSet); err != nil {
+			return err
+		}
 
-	if err = p.insertDBTransactionParticipants(participantSet); err != nil {
-		return err
+		if err = p.insertDBTransactionParticipants(participantSet); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -466,19 +466,14 @@ func (p *DatabaseProcessor) ingestLedgerHeader(
 	}
 
 	if err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("Could not compare ledger %v", seq),
-		)
+		log.WithField("sequence", seq).WithError(err).
+			Error("Could not compare ledger")
+		return nil
 	}
 
 	if !valid {
 		log.WithField("sequence", seq).
 			Error("row in exp_history_ledgers does not match ledger in history_ledgers")
-		return errors.Errorf(
-			"ledger %v in exp_history_ledgers does not match ledger in history_ledgers",
-			seq,
-		)
 	}
 
 	return nil

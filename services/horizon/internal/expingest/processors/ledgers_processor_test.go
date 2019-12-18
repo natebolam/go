@@ -187,8 +187,7 @@ func (s *LedgersProcessorTestSuiteLedger) TestCheckExpLedgerError() {
 		s.mockLedgerReader,
 		s.mockLedgerWriter,
 	)
-	s.Assert().Error(err)
-	s.Assert().EqualError(err, "Could not compare ledger 10: transient check exp ledger error")
+	s.Assert().NoError(err)
 }
 
 func (s *LedgersProcessorTestSuiteLedger) TestCheckExpLedgerDoesNotMatch() {
@@ -209,11 +208,7 @@ func (s *LedgersProcessorTestSuiteLedger) TestCheckExpLedgerDoesNotMatch() {
 		s.mockLedgerReader,
 		s.mockLedgerWriter,
 	)
-	s.Assert().Error(err)
-	s.Assert().EqualError(
-		err,
-		"ledger 10 in exp_history_ledgers does not match ledger in history_ledgers",
-	)
+	s.Assert().NoError(err)
 }
 
 func (s *LedgersProcessorTestSuiteLedger) TestInsertExpLedgerReturnsError() {

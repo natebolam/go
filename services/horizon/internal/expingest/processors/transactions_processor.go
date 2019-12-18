@@ -2,7 +2,6 @@ package processors
 
 import (
 	"context"
-	"fmt"
 	stdio "io"
 
 	"github.com/stellar/go/exp/ingest/io"
@@ -70,18 +69,15 @@ func (p *TransactionProcessor) ProcessLedger(ctx context.Context, store *pipelin
 	var valid bool
 	valid, err = p.TransactionsQ.CheckExpTransactions(checkSequence)
 	if err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("Could not compare transactions for ledger %v", checkSequence),
-		)
+		log.WithField("sequence", checkSequence).WithError(err).
+			Error("Could not compare transactions for ledger")
+		return nil
 	}
 
 	if !valid {
-		return errors.Errorf(
-			"rows for ledger %v in exp_history_transactions "+
-				"does not match transactions in history_transactions",
-			checkSequence,
-		)
+		log.WithField("sequence", checkSequence).
+			Error("rows for ledger in exp_history_transactions does not match " +
+				"transactions in history_transactions")
 	}
 
 	return nil

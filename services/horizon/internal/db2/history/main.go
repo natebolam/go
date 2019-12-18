@@ -111,7 +111,7 @@ const (
 
 // Account is a row of data from the `history_accounts` table
 type Account struct {
-	ID      int64
+	ID      int64  `db:"id"`
 	Address string `db:"address"`
 }
 

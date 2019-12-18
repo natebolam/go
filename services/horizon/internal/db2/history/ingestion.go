@@ -56,6 +56,9 @@ func (q *Q) RemoveExpIngestHistory(newerThanSequence uint32) (ExpIngestRemovalSu
 	}
 
 	summary.TransactionsRemoved, err = result.RowsAffected()
+	if err != nil {
+		return summary, err
+	}
 
 	result, err = q.Exec(
 		sq.Delete("exp_history_transaction_participants").
@@ -66,6 +69,5 @@ func (q *Q) RemoveExpIngestHistory(newerThanSequence uint32) (ExpIngestRemovalSu
 	}
 
 	summary.TransactionParticipantsRemoved, err = result.RowsAffected()
-
 	return summary, err
 }

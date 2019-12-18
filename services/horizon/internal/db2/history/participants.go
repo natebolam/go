@@ -15,7 +15,7 @@ type QParticipants interface {
 // CreateExpAccounts returns a mapping of account address to its corresponding id in the exp_history_accounts table
 func (q *Q) CreateExpAccounts(addresses []string) (map[string]int64, error) {
 	var accounts []Account
-	sql := sq.Insert("history_accounts").Columns("address")
+	sql := sq.Insert("exp_history_accounts").Columns("address")
 	for _, address := range addresses {
 		sql = sql.Values(address)
 	}

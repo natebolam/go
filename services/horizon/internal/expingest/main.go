@@ -61,7 +61,8 @@ type Config struct {
 	// Set MaxStreamRetries to 0 if there should be no retry attempts
 	MaxStreamRetries int
 
-	OrderBookGraph *orderbook.OrderBookGraph
+	OrderBookGraph           *orderbook.OrderBookGraph
+	IngestFailedTransactions bool
 }
 
 type dbQ interface {
@@ -154,7 +155,11 @@ func NewSystem(config Config) (*System, error) {
 		MaxStreamRetries: config.MaxStreamRetries,
 		LedgerBackend:    ledgerBackend,
 		StatePipeline:    buildStatePipeline(historyQ, config.OrderBookGraph),
-		LedgerPipeline:   buildLedgerPipeline(historyQ, config.OrderBookGraph),
+		LedgerPipeline: buildLedgerPipeline(
+			historyQ,
+			config.OrderBookGraph,
+			config.IngestFailedTransactions,
+		),
 		StellarCoreClient: &stellarcore.Client{
 			URL: config.StellarCoreURL,
 		},

@@ -28,4 +28,4 @@ DROP TABLE exp_history_transactions cascade;
 
 DROP TABLE exp_history_accounts cascade;
 
-DROP TABLE exp_history_transaction_participants;
+DROP TABLE exp_history_transaction_participants cascade;

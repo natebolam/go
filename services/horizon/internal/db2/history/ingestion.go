@@ -1,6 +1,9 @@
 package history
 
-import sq "github.com/Masterminds/squirrel"
+import (
+	sq "github.com/Masterminds/squirrel"
+	"github.com/stellar/go/services/horizon/internal/toid"
+)
 
 // TruncateExpingestStateTables clears out ingestion state tables.
 // Ingestion state tables are horizon database tables populated by
@@ -21,8 +24,9 @@ func (q *Q) TruncateExpingestStateTables() error {
 // ExpIngestRemovalSummary describes how many rows in the experimental ingestion
 // history tables have been deleted by RemoveExpIngestHistory()
 type ExpIngestRemovalSummary struct {
-	LedgersRemoved      int64
-	TransactionsRemoved int64
+	LedgersRemoved                 int64
+	TransactionsRemoved            int64
+	TransactionParticipantsRemoved int64
 }
 
 // RemoveExpIngestHistory removes all rows in the experimental ingestion
@@ -52,5 +56,16 @@ func (q *Q) RemoveExpIngestHistory(newerThanSequence uint32) (ExpIngestRemovalSu
 	}
 
 	summary.TransactionsRemoved, err = result.RowsAffected()
+
+	result, err = q.Exec(
+		sq.Delete("exp_history_transaction_participants").
+			Where("history_transaction_id >= ?", toid.ID{LedgerSequence: int32(newerThanSequence + 1)}.ToInt64()),
+	)
+	if err != nil {
+		return summary, err
+	}
+
+	summary.TransactionParticipantsRemoved, err = result.RowsAffected()
+
 	return summary, err
 }

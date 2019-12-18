@@ -21,6 +21,8 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.NoError(err)
 
 	txInsertBuilder := q.NewTransactionBatchInsertBuilder(0)
+	txParticipantsInsertBuilder := q.NewTransactionParticipantsBatchInsertBuilder(0)
+	accountID := int64(1223)
 
 	ledger := Ledger{
 		Sequence:                   69859,
@@ -76,6 +78,10 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 		)
 		tt.Assert.NoError(err)
 		tt.Assert.NoError(txInsertBuilder.Exec())
+		tt.Assert.NoError(
+			txParticipantsInsertBuilder.Add(toid.New(ledger.Sequence, 1, 0).ToInt64(), accountID),
+		)
+		tt.Assert.NoError(txParticipantsInsertBuilder.Exec())
 
 		ledger.Sequence++
 	}
@@ -90,6 +96,8 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.NoError(err)
 	tt.Assert.Len(transactions, 5)
 
+	tt.Assert.Len(getTransactionParticipants(tt, q), 5)
+
 	summary, err = q.RemoveExpIngestHistory(69863)
 	tt.Assert.Equal(ExpIngestRemovalSummary{}, summary)
 	tt.Assert.NoError(err)
@@ -102,9 +110,18 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.NoError(err)
 	tt.Assert.Len(transactions, 5)
 
+	tt.Assert.Len(getTransactionParticipants(tt, q), 5)
+
 	cutoffSequence := 69861
 	summary, err = q.RemoveExpIngestHistory(uint32(cutoffSequence))
-	tt.Assert.Equal(ExpIngestRemovalSummary{LedgersRemoved: 2, TransactionsRemoved: 2}, summary)
+	tt.Assert.Equal(
+		ExpIngestRemovalSummary{
+			LedgersRemoved:                 2,
+			TransactionsRemoved:            2,
+			TransactionParticipantsRemoved: 2,
+		},
+		summary,
+	)
 	tt.Assert.NoError(err)
 
 	err = q.Select(&ledgers, selectLedgerFields.From("exp_history_ledgers hl"))
@@ -115,8 +132,15 @@ func TestRemoveExpIngestHistory(t *testing.T) {
 	tt.Assert.NoError(err)
 	tt.Assert.Len(transactions, 3)
 
+	txParticipants := getTransactionParticipants(tt, q)
+	tt.Assert.Len(txParticipants, 3)
+
 	for i := range ledgers {
 		tt.Assert.LessOrEqual(ledgers[i].Sequence, int32(cutoffSequence))
 		tt.Assert.LessOrEqual(transactions[i].LedgerSequence, int32(cutoffSequence))
+		tt.Assert.Less(
+			txParticipants[i].TransactionID,
+			toid.ID{LedgerSequence: int32(cutoffSequence + 1)}.ToInt64(),
+		)
 	}
 }

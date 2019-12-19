@@ -113,8 +113,7 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestNoIngestUpdateDatabase() {
 func (s *ParticipantsProcessorTestSuiteLedger) TestEmptyParticipants() {
 	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
 
-	sequence := uint32(20)
-	s.mockLedgerReader.On("GetSequence").Return(sequence).Once()
+	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
 		On("Read").
@@ -122,6 +121,57 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestEmptyParticipants() {
 	s.mockLedgerReader.
 		On("Close").
 		Return(nil).Once()
+
+	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
+		Return(true, nil).Once()
+
+	err := s.processor.ProcessLedger(
+		s.context,
+		&supportPipeline.Store{},
+		s.mockLedgerReader,
+		s.mockLedgerWriter,
+	)
+	s.Assert().NoError(err)
+}
+
+func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsError() {
+	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
+
+	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
+
+	s.mockLedgerReader.
+		On("Read").
+		Return(io.LedgerTransaction{}, stdio.EOF).Once()
+	s.mockLedgerReader.
+		On("Close").
+		Return(nil).Once()
+
+	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
+		Return(false, errors.New("transient error")).Once()
+
+	err := s.processor.ProcessLedger(
+		s.context,
+		&supportPipeline.Store{},
+		s.mockLedgerReader,
+		s.mockLedgerWriter,
+	)
+	s.Assert().NoError(err)
+}
+
+func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsDoesNotMatch() {
+	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
+
+	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
+
+	s.mockLedgerReader.
+		On("Read").
+		Return(io.LedgerTransaction{}, stdio.EOF).Once()
+	s.mockLedgerReader.
+		On("Close").
+		Return(nil).Once()
+
+	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
+		Return(false, nil).Once()
 
 	err := s.processor.ProcessLedger(
 		s.context,
@@ -172,6 +222,9 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestIngestParticipantsSucceeds() 
 	).Return(nil).Once()
 
 	s.mockBatchInsertBuilder.On("Exec").Return(nil).Once()
+
+	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
+		Return(true, nil).Once()
 
 	err := s.processor.ProcessLedger(
 		s.context,

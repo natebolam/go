@@ -154,6 +154,22 @@ func (p *ParticipantsProcessor) ProcessLedger(ctx context.Context, store *pipeli
 		}
 	}
 
+	// use an older lookup sequence because the experimental ingestion system and the
+	// legacy ingestion system might not be in sync
+	checkSequence := int32(sequence - 10)
+	var valid bool
+	valid, err = p.ParticipantsQ.CheckExpParticipants(checkSequence)
+	if err != nil {
+		log.WithField("sequence", checkSequence).WithError(err).
+			Error("Could not compare participants for ledger")
+		return nil
+	}
+
+	if !valid {
+		log.WithField("sequence", checkSequence).
+			Error("participants do not match")
+	}
+
 	return nil
 }
 

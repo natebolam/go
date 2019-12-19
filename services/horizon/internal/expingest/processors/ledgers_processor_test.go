@@ -40,7 +40,11 @@ func createTransaction(successful bool, numOps int) io.LedgerTransaction {
 
 	operations := []xdr.Operation{}
 	for i := 0; i < numOps; i++ {
-		operations = append(operations, xdr.Operation{})
+		operations = append(operations, xdr.Operation{
+			Body: xdr.OperationBody{
+				Type: xdr.OperationTypeBumpSequence,
+			},
+		})
 	}
 
 	return io.LedgerTransaction{

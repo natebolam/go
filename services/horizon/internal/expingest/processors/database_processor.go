@@ -226,7 +226,7 @@ func (p *DatabaseProcessor) ProcessLedger(ctx context.Context, store *pipeline.S
 			}
 		}
 
-		if transaction.Result.Result.Result.Code == xdr.TransactionResultCodeTxSuccess {
+		if transaction.Successful() {
 			successTxCount++
 			opCount += len(transaction.Envelope.Tx.Operations)
 		} else {

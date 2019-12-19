@@ -7,7 +7,6 @@ import (
 	"github.com/stellar/go/exp/ingest/io"
 	ingestpipeline "github.com/stellar/go/exp/ingest/pipeline"
 	"github.com/stellar/go/exp/support/pipeline"
-	"github.com/stellar/go/xdr"
 )
 
 // TransactionFilterProcessor is a processor which can be configured to filter away failed transactions
@@ -39,8 +38,7 @@ func (p *TransactionFilterProcessor) ProcessLedger(ctx context.Context, store *p
 			}
 		}
 
-		txSucceeded := transaction.Result.Result.Result.Code == xdr.TransactionResultCodeTxSuccess
-		if p.IngestFailedTransactions || txSucceeded {
+		if p.IngestFailedTransactions || transaction.Successful() {
 			err = w.Write(transaction)
 			if err != nil {
 				if err == stdio.ErrClosedPipe {

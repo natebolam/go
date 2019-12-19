@@ -166,6 +166,6 @@ func transactionToMap(transaction io.LedgerTransaction, sequence uint32) (map[st
 		"memo":              memo(transaction),
 		"created_at":        time.Now().UTC(),
 		"updated_at":        time.Now().UTC(),
-		"successful":        transaction.Result.Result.Result.Code == xdr.TransactionResultCodeTxSuccess,
+		"successful":        transaction.Successful(),
 	}, nil
 }

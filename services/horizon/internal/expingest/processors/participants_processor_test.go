@@ -84,6 +84,11 @@ func (s *ParticipantsProcessorTestSuiteLedger) SetupTest() {
 		ParticipantsQ: s.mockQ,
 	}
 
+	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
+	s.mockLedgerReader.
+		On("Close").
+		Return(nil).Once()
+
 	s.mockLedgerWriter.
 		On("Close").
 		Return(nil).Once()
@@ -96,11 +101,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TearDownTest() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestNoIngestUpdateDatabase() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
-
 	err := s.processor.ProcessLedger(
 		context.Background(),
 		&supportPipeline.Store{},
@@ -111,16 +111,11 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestNoIngestUpdateDatabase() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestEmptyParticipants() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
-
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
 		Return(true, nil).Once()
@@ -135,16 +130,11 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestEmptyParticipants() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsError() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
-
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
 		Return(false, errors.New("transient error")).Once()
@@ -159,16 +149,11 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsError() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsDoesNotMatch() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
-
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CheckExpParticipants", int32(s.sequence-10)).
 		Return(false, nil).Once()
@@ -183,7 +168,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestCheckExpParticipantsDoesNotMa
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestIngestParticipantsSucceeds() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
@@ -198,9 +182,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestIngestParticipantsSucceeds() 
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CreateExpAccounts", s.sortedAddresses).Return(s.addressToID, nil).Once()
 	s.mockQ.On("NewTransactionParticipantsBatchInsertBuilder", maxBatchSize).
@@ -236,7 +217,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestIngestParticipantsSucceeds() 
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestCreateExpAccountsFails() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
@@ -251,9 +231,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestCreateExpAccountsFails() {
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CreateExpAccounts", s.sortedAddresses).
 		Return(s.addressToID, errors.New("transient error")).Once()
@@ -268,7 +245,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestCreateExpAccountsFails() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestBatchAddFails() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
@@ -283,9 +259,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestBatchAddFails() {
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CreateExpAccounts", s.sortedAddresses).
 		Return(s.addressToID, nil).Once()
@@ -317,7 +290,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestBatchAddFails() {
 }
 
 func (s *ParticipantsProcessorTestSuiteLedger) TestBatchAddExecFails() {
-	s.mockLedgerReader.On("IgnoreUpgradeChanges").Once()
 	s.mockLedgerReader.On("GetSequence").Return(s.sequence).Once()
 
 	s.mockLedgerReader.
@@ -332,9 +304,6 @@ func (s *ParticipantsProcessorTestSuiteLedger) TestBatchAddExecFails() {
 	s.mockLedgerReader.
 		On("Read").
 		Return(io.LedgerTransaction{}, stdio.EOF).Once()
-	s.mockLedgerReader.
-		On("Close").
-		Return(nil).Once()
 
 	s.mockQ.On("CreateExpAccounts", s.sortedAddresses).Return(s.addressToID, nil).Once()
 	s.mockQ.On("NewTransactionParticipantsBatchInsertBuilder", maxBatchSize).
